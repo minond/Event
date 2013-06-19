@@ -1,0 +1,18 @@
+{
+    "name": "minond/event",
+    "description": "Events and signals",
+    "authors": [
+        {
+            "name": "Marcos Minond",
+            "email": "minond.marcos@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Efficio": "src/"
+        }
+    }
+}
