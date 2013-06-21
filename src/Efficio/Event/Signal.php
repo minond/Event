@@ -3,7 +3,7 @@
 namespace Efficio\Event;
 
 use StdClass;
-use Efficio\Event;
+use Efficio\Event\Event;
 
 /**
  * enables:
@@ -29,23 +29,20 @@ trait Signal
      * trigger event
      * @see Event
      * @param string $key
+     * @param string $function
      * @param StdClass $data, default = null
-     * @param string $function, default = callee
      * @return array, array of responses
      */
-    protected function signal($key, StdClass $data = null, $function = null)
+    protected function signal($key, $function, StdClass $data = null)
     {
         $class = get_called_class();
         $response = [];
-
-        if (!$function) {
-            $callee = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
-            $function = $callee['function'];
-        }
+        $event = new Event;
+        $event->setData($data);
 
         foreach (array_merge(self::$ghandlers, $this->ihandlers) as $handler) {
             if ($handler->handles($key, $class, $function)) {
-                $response[] = $handler->trigger([ $data ]);
+                $response[] = $handler->trigger($event);
             }
         }
 
@@ -53,23 +50,38 @@ trait Signal
     }
 
     /**
-     * add an event handler
+     * add an instance event handler
      * @param string $key
-     * @param string $function
      * @param callable $action
      */
-    public function listen($key, $function, $action)
+    public function on($key, $action)
     {
+        $this->ihandlers[] = self::genHandler($key, $action);
+    }
+
+    /**
+     * add a global event handler
+     * @param string $key
+     * @param callable $action
+     */
+    public static function listen($key, $action)
+    {
+        self::$ghandlers[] = self::genHandler($key, $action);
+    }
+
+    /**
+     * @param string $key
+     * @param callable $action
+     * @return Handler
+     */
+    protected static function genHandler($key, $action)
+    {
+        list($key, $function) = explode('.', $key, 2);
         $handler = new Handler;
         $handler->setKey($key);
         $handler->setFunction($function);
         $handler->setClass(get_called_class());
         $handler->setAction($action);
-
-        if (isset($this)) {
-            $this->ihandlers[] = $handler;
-        } else {
-            self::$ghandlers[] = $handler;
-        }
+        return $handler;
     }
 }

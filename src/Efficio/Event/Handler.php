@@ -2,6 +2,11 @@
 
 namespace Efficio\Event;
 
+use Efficio\Event\Event;
+
+/**
+ * event handler
+ */
 class Handler
 {
     /**
@@ -102,18 +107,18 @@ class Handler
      */
     public function handles($key, $class, $function)
     {
-        return $this->key === $key &&
-            $this->class === $class &&
-            $this->function === $function;
+        return strtolower($this->key) === strtolower($key) &&
+            strtolower($this->class) === strtolower($class) &&
+            strtolower($this->function) === strtolower($function);
     }
 
     /**
      * trigger the action
-     * @param array $args, default = array()
+     * @param Event $ev
      * @return mixed
      */
-    public function trigger(array $args = array())
+    public function trigger(Event $ev)
     {
-        return call_user_func_array($this->action, $args);
+        return call_user_func($this->action, $ev);
     }
 }

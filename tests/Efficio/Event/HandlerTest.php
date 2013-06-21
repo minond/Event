@@ -2,7 +2,7 @@
 
 namespace Efficio\Tests\Event;
 
-use Efficio\Event;
+use Efficio\Event\Event;
 use Efficio\Event\Handler;
 use PHPUnit_Framework_TestCase;
 
@@ -55,13 +55,29 @@ class HandlerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->handler->handles(Event::PRE, __CLASS__, __FUNCTION__ . 1), 'Invalid function');
     }
 
+    public function testHandlerIsCaseInsensitiveToKeyClassAndFunctionNames()
+    {
+        $this->handler->setKey(Event::PRE);
+        $this->handler->setClass(__CLASS__);
+        $this->handler->setFunction(__FUNCTION__);
+
+        $this->assertTrue($this->handler->handles(
+            strtoupper(Event::PRE),
+            strtolower(__CLASS__),
+            strtolower(__FUNCTION__)
+        ));
+    }
+
     public function testTrigger()
     {
-        $action = function($a, $b) {
-            return [ $b, $a ];
+        $ev = new Event;
+        $ev->setData(1, 2);
+        $action = function(Event $ev) {
+            $data = $ev->getData();
+            return [ $data[1], $data[0] ];
         };
         $this->handler->setAction($action);
 
-        $this->assertEquals([2, 1], $this->handler->trigger([1, 2]));
+        $this->assertEquals([2, 1], $this->handler->trigger($ev));
     }
 }
