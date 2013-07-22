@@ -107,9 +107,28 @@ class Handler
      */
     public function handles($key, $class, $function)
     {
-        return strtolower($this->key) === strtolower($key) &&
-            strtolower($this->class) === strtolower($class) &&
-            strtolower($this->function) === strtolower($function);
+        $f_ok = strtolower($this->function) === strtolower($function);
+        $k_ok = strtolower($this->key) === strtolower($key);
+        $c_ok = false;
+
+        if ($f_ok && $k_ok && class_exists($class)) {
+            if (strtolower($this->class) === strtolower($class)) {
+                // same class
+                $c_ok = true;
+            } else if (is_subclass_of($class, $this->class)) {
+                // extends class and implemented interface
+                $c_ok = true;
+            } else {
+                do {
+                    if (in_array($this->class, class_uses($class))) {
+                        $c_ok = true;
+                        break;
+                    }
+                } while($class = get_parent_class($class));
+            }
+        }
+
+        return $f_ok && $k_ok && $c_ok;
     }
 
     /**

@@ -4,7 +4,16 @@ namespace Efficio\Tests\Event;
 
 use Efficio\Event\Event;
 use Efficio\Event\Handler;
+use Efficio\Tests\Mocks\Event\ClassTest;
+use Efficio\Tests\Mocks\Event\ClassClassTest;
+use Efficio\Tests\Mocks\Event\ClassClassClassTest;
+use Efficio\Tests\Mocks\Event\ClassTraitTest;
+use Efficio\Tests\Mocks\Event\ClassClassTraitTest;
+use Efficio\Tests\Mocks\Event\ClassInterfaceTest;
+use Efficio\Tests\Mocks\Event\ClassClassInterfaceTest;
 use PHPUnit_Framework_TestCase;
+
+require_once 'tests/mocks/classes.php';
 
 class HandlerTest extends PHPUnit_Framework_TestCase
 {
@@ -79,5 +88,75 @@ class HandlerTest extends PHPUnit_Framework_TestCase
         $this->handler->setAction($action);
 
         $this->assertEquals([2, 1], $this->handler->trigger($ev));
+    }
+
+    public function testHandlerRecognicesBaseClasses()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\ClassTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesExtendedClasses()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\ClassTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassClassTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesExtendedClassesOfClasses()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\ClassTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassClassClassTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesBaseTraits()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\TraitTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassTraitTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesExtendedTraits()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\TraitTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassClassTraitTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesImplementedInterfaces()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\InterfaceTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassInterfaceTest', __FUNCTION__));
+    }
+
+    public function testHandlerRecognicesImplementedExtendedInterfaces()
+    {
+        $handler = new Handler;
+        $handler->setKey(Event::PRE);
+        $handler->setFunction(__FUNCTION__);
+        $handler->setClass('Efficio\Tests\Mocks\Event\InterfaceTest');
+        $this->assertTrue($handler->handles(
+            Event::PRE, 'Efficio\Tests\Mocks\Event\ClassClassInterfaceTest', __FUNCTION__));
     }
 }
