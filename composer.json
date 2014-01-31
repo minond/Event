@@ -1,6 +1,7 @@
 {
     "name": "minond/event",
     "description": "Events and signals",
+    "license": "GPL-2.0+",
 
     "authors": [
         {
